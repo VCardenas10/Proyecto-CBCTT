@@ -1,0 +1,17 @@
+0.005
+0 27
+
+# Conteo restricciones duras
+0 0 0 0
+
+# Conteo restricciones blandas
+16 1 3 0
+
+# Lista de asignaciones (una por leccion)
+Sce B 0 0
+Sce B 0 1
+Tec B 0 2
+Tec B 1 0
+Geo A 1 1
+Geo A 2 0
+Tec B 2 1

@@ -1,0 +1,287 @@
+\documentclass[letter, 10pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage[dvips]{graphicx}
+\usepackage{url}
+\usepackage[top=3cm,bottom=3cm,left=3.5cm,right=3.5cm,footskip=1.5cm,headheight=1.5cm,headsep=.5cm,textheight=3cm]{geometry}
+
+
+
+\begin{document}
+\title{Inteligencia Artificial \\ \begin{Large}Estado del Arte: Problema CBCTT\end{Large}}
+\author{Victor Cárdenas}
+\date{\today}
+\maketitle
+
+
+%--------------------No borrar esta secci\'on--------------------------------%
+\section*{Evaluaci\'on}
+
+\begin{tabular}{ll}
+Resumen (5\%): & \underline{\hspace{2cm}} \\
+Introducci\'on (5\%):  & \underline{\hspace{2cm}} \\
+Definici\'on del Problema (10\%):  & \underline{\hspace{2cm}} \\
+Estado del Arte (40\%):  & \underline{\hspace{2cm}} \\
+Modelo Matem\'atico (20\%): &  \underline{\hspace{2cm}}\\
+Conclusiones (15\%): &  \underline{\hspace{2cm}}\\
+Bibliograf\'ia (5\%): & \underline{\hspace{2cm}}\\
+ &  \\
+\textbf{Nota Final (100\%)}:   & \underline{\hspace{2cm}}
+\end{tabular}
+%---------------------------------------------------------------------------%
+\vspace{2cm}
+
+
+\begin{abstract}
+El presente informe aborda el Problema de Asignación de Horarios Basado en Currículos (CB-CTT), un desafío logístico fundamental y de alta complejidad matemática (NP-Difícil) que consiste en coordinar clases, profesores y salas universitarias en bloques de tiempo definidos, garantizando la ausencia de topes horarios. El objetivo principal de este documento es establecer una base teórica sólida mediante una exhaustiva revisión del estado del arte, contrastando cómo los enfoques exactos y las metaheurísticas modernas logran automatizar este proceso. A partir de este análisis, se formula un modelo matemático de Programación Lineal Entera original, el cual asienta las bases estructurales necesarias para el futuro desarrollo de un algoritmo heurístico eficiente, capaz de optimizar la calidad de la planificación académica en instituciones de gran envergadura.
+\end{abstract}
+
+\section{Introducción}
+
+En el ámbito de la ingeniería y la gestión de recursos, los problemas de optimización y satisfacción de restricciones han surgido como herramientas fundamentales para automatizar y agilizar la toma de decisiones. Históricamente, la planificación de tareas logísticas a gran escala dependía de procesos manuales, los cuales resultan ineficientes, propensos a errores y excesivamente complejos para ser procesados únicamente por el raciocinio humano \cite{schaerf1999}. Un ejemplo paradigmático de esta dificultad se encuentra en la asignación de horarios académicos dentro de las instituciones de educación superior. Para universidades de gran envergadura, como la Universidad Técnica Federico Santa María (USM), coordinar de manera armónica a miles de estudiantes, cientos de profesores y una infraestructura física limitada representa un desafío logístico formidable. Precisamente, la motivación de este trabajo radica en la necesidad imperativa de optimizar estos recursos para garantizar un correcto funcionamiento institucional, abordando lo que en la literatura científica se conoce como el Problema de Asignación de Horarios Basado en Currículos (CB-CTT, por sus siglas en inglés) \cite{digaspero2007}.
+
+El problema CB-CTT consiste en asignar un conjunto de eventos académicos a un número finito de bloques temporales y salas, garantizando el cumplimiento de múltiples normativas operativas \cite{decesco2008}. En la formulación de estos modelos, las exigencias se dividen en dos grandes categorías. Por un lado, se encuentran las restricciones duras, normativas inquebrantables que deben respetarse estrictamente para que una solución sea considerada válida, como por ejemplo, evitar que un profesor deba impartir clases en dos lugares distintos de manera simultánea. Por otro lado, existen las restricciones blandas, las cuales representan preferencias institucionales y de bienestar, tales como evitar la existencia de múltiples bloques libres (ventanas) en la jornada de un estudiante o equilibrar la cantidad de sesiones semanales de una misma asignatura \cite{digaspero2007}.
+
+Desde una perspectiva computacional, está matemáticamente demostrado que este desafío pertenece a la clase de problemas \textit{NP-Difícil} \cite{schaerf1999}. Esta clasificación implica que las soluciones algorítmicas exactas resultan viables única y exclusivamente para instancias de tamaño muy limitado, ya que en un campus universitario real el número de combinaciones posibles crece de manera exponencial. Ante esta barrera, los métodos aproximados han cobrado gran relevancia, demostrando que los algoritmos basados en metaheurísticas son altamente eficaces para encontrar soluciones de excelente calidad en tiempos de cómputo razonables. Para hacer frente a esta complejidad, a lo largo de los años se han desarrollado y adaptado diversas estrategias de resolución, destacando técnicas como el coloreo de grafos, la búsqueda tabú \cite{lu2010}, el recocido simulado \cite{ceschia2012}, los algoritmos evolutivos, los enfoques basados en restricciones, la búsqueda miope adaptativa (GRASP) y el razonamiento basado en casos \cite{ceschia2023}.
+
+El propósito central del presente documento es establecer una base teórica sólida y un análisis exhaustivo del CB-CTT, contribuyendo a la comprensión fundamental del problema como paso previo al desarrollo de un algoritmo de resolución propio, con la visión a largo plazo de que estos modelos puedan ser escalados para resolver instancias institucionales reales, como las que enfrenta semestralmente la USM. Para estructurar este análisis, el informe se divide en cuatro secciones principales posteriores a esta introducción. En primer lugar, se presenta la \textit{Definición del Problema}, donde se detallan de forma conceptual las variables, objetivos y dificultades del modelo. En segundo lugar, se expone el \textit{Estado del Arte}, el cual ofrece un recorrido histórico por las distintas representaciones y algoritmos más eficaces desarrollados hasta la fecha. A continuación, se detalla el \textit{Modelo Matemático}, formalizando analíticamente las funciones y restricciones que rigen el problema. Finalmente, el documento culmina con las \textit{Conclusiones}, donde se sintetizan y comparan las ventajas de las técnicas existentes dentro del área de estudio.
+
+\section{Definici\'on del Problema}
+
+El Problema de Asignación de Horarios Basado en Currículos (CB-CTT, por sus siglas en inglés) es un desafío logístico muy importante en el área de la programación de horarios educativos. Básicamente, el problema consiste en organizar un grupo de clases en distintos bloques de tiempo y asignarlas a salas específicas. Todo esto se debe hacer cumpliendo con todas las reglas de funcionamiento de la institución y buscando la mayor comodidad posible para las personas involucradas \cite{digaspero2007}. En el fondo, la dificultad de este problema está en lograr coordinar al mismo tiempo, y sin generar choques de horario, tres recursos que son limitados: los profesores, los estudiantes y las salas de clases.
+
+\subsection*{Dificultades y Complejidad del Problema}
+La principal barrera que dificulta la resolución del CB-CTT es su altísima complejidad combinatoria. En la literatura científica, este problema está clasificado dentro de la categoría \textit{NP-Difícil}, lo que implica que el tiempo necesario para explorar todas las combinaciones posibles y encontrar una solución exacta crece de manera exponencial a medida que aumentan los elementos del modelo \cite{schaerf1999}. Uno de los mayores retos en la práctica es la densidad del grafo de conflictos; en instituciones reales, los recursos están altamente saturados y las combinaciones factibles son sumamente escasas \cite{ceschia2023}. Encontrar siquiera una solución inicial que sea válida (es decir, que no rompa ninguna regla fundamental) resulta ser un desafío mayor, requiriendo algoritmos sofisticados para navegar por un espacio de búsqueda lleno de óptimos locales y restricciones cruzadas.
+
+\subsection*{Variables Involucradas}
+Para estructurar el problema, interactúan diversas entidades o variables conceptuales fundamentales que definen el comportamiento del modelo \cite{decesco2008}:
+\begin{itemize}
+    \item \textbf{Días y Periodos:} El horizonte temporal de planificación se divide en días lectivos, y cada día se subdivide en un número fijo de periodos o bloques temporales iguales.
+    \item \textbf{Cursos y Clases:} Un curso representa una asignatura específica que debe impartirse a los alumnos. Cada curso se compone de un número predeterminado de clases (sesiones individuales) que deben ser programadas a lo largo de la semana.
+    \item \textbf{Salas:} Corresponden a los espacios físicos de la institución. Cada sala cuenta con una capacidad máxima de estudiantes que puede albergar por bloque.
+    \item \textbf{Profesores:} Son los encargados de impartir los cursos y poseen disponibilidades horarias específicas.
+    \item \textbf{Currículos:} Representan el núcleo de esta formulación. Un currículo es un conjunto de cursos que un grupo específico de estudiantes debe cursar en conjunto durante un semestre.
+\end{itemize}
+
+\subsection*{Restricciones del Problema}
+Las limitaciones operativas que gobiernan el modelo se dividen según su nivel de rigidez. Las denominadas \textit{restricciones duras} son exigencias inquebrantables; si una asignación incumple al menos una de ellas, la solución se considera infactible y es descartada \cite{digaspero2007}. Las restricciones duras que componen este problema son:
+\begin{itemize}
+    \item \textbf{Completitud:} Todas las clases obligatorias de cada curso deben ser programadas obligatoriamente dentro del horizonte temporal.
+    \item \textbf{Conflictos de Currículo:} Los cursos que pertenecen a un mismo currículo comparten estudiantes y, por lo tanto, sus clases no pueden ser programadas en el mismo periodo bajo ninguna circunstancia.
+    \item \textbf{Conflictos de Docentes:} Un mismo profesor no puede impartir dos o más clases distintas durante el mismo bloque temporal.
+    \item \textbf{Ocupación de Salas:} Una sala física no puede albergar más de una clase de manera simultánea en el mismo periodo.
+    \item \textbf{Disponibilidad:} Las clases de un curso no pueden ser asignadas a periodos en los cuales el profesor responsable ha declarado indisponibilidad.
+\end{itemize}
+
+\subsection*{Objetivos del Problema}
+El objetivo principal del problema es encontrar una asignación que, habiendo cumplido todas las restricciones duras, minimice el impacto de las \textit{restricciones blandas}. Estas últimas representan preferencias institucionales y de comodidad, su incumplimiento no anula la solución, pero suma puntos de penalización a la función objetivo del modelo \cite{digaspero2007, decesco2008}. En la formulación estándar más utilizada, el objetivo busca minimizar cuatro penalizaciones:
+\begin{itemize}
+    \item \textbf{Capacidad de las Salas:} Penalizar la asignación de una clase a una sala cuya capacidad sea menor que el número de estudiantes inscritos en el curso.
+    \item \textbf{Días Mínimos de Trabajo:} Penalizar la concentración excesiva de clases, buscando que las sesiones de un mismo curso se distribuyan en un número mínimo de días para favorecer el aprendizaje.
+    \item \textbf{Compacidad del Currículo:} Penalizar la existencia de ``ventanas'' o clases aisladas. Se busca que la jornada diaria de los estudiantes sea compacta, evitando que asistan a una clase que no esté adyacente a otra del mismo currículo en ese día.
+    \item \textbf{Estabilidad de las Salas:} Penalizar la dispersión espacial. Idealmente, todas las clases de un mismo curso deberían impartirse en la misma sala física durante toda la semana para facilitar la logística.
+\end{itemize}
+
+\subsection*{Problemas Relacionados y Variantes Conocidas}
+El CB-CTT forma parte de una familia más amplia de desafíos logísticos englobados bajo la denominación de Programación de Horarios Educativos \cite{ceschia2023}. Históricamente, la planificación académica ha dado origen a variantes adaptadas a las realidades de cada institución. Una de las ramas más antiguas es la \textit{Asignación de Horarios Escolares} (HTT, por sus siglas en inglés), que se enfoca en colegios e institutos donde los estudiantes permanecen en grupos cerrados todo el día, lo que cambia drásticamente la estructura de los choques horarios \cite{schaerf1999}. 
+
+Asimismo, existen otros dos grandes problemas derivados en el ámbito universitario. El primero es la \textit{Programación de Exámenes} (ETT), donde el objetivo es evitar que los alumnos tengan evaluaciones superpuestas, añadiendo reglas de distanciamiento entre pruebas para mitigar la fatiga mental \cite{ceschia2023}. La variante más directa y comparable al problema estudiado es la \textit{Programación de Horarios de Cursos tras la Matriculación} (PE-CTT). A diferencia del enfoque basado en currículos (donde se planifica pensando en agrupaciones teóricas de asignaturas), la variante PE-CTT modela los conflictos basándose en las inscripciones individuales reales de cada estudiante \cite{ceschia2023}. Si bien el problema PE-CTT es más preciso a la hora de evitar choques horarios, resulta computacionalmente más inestable, ya que la planificación solo puede comenzar una vez finalizado el proceso de toma de ramos.
+
+\section{Estado del Arte}
+
+El problema de asignación de horarios en instituciones educativas se consolidó como un desafío central en la Inteligencia Artificial debido a su alta complejidad combinatoria y la dificultad técnica para modelar exigencias operativas difusas. En sus análisis de origen, Schaerf \cite{schaerf1999} destaca la irrupción de la Programación de Restricciones como un enfoque primordial por su flexibilidad estructural. Sin embargo, dada la magnitud del problema, los métodos exactos tradicionales, como el backtracking puro, resultaron computacionalmente ineficientes, obligando a los investigadores a controlar los mecanismos de retroceso integrando ajustes locales basados en heurísticas. Dentro de diferentes tipos del problema, la literatura de la época establecía que la asignación escolar era considerada la variante más demandante a nivel algorítmico y requería búsqueda local especializada (Costa, 1994; Yoshikawa et al., 1996, citados en \cite{schaerf1999}), por otro lado, la programación de cursos universitarios resultaba más compleja en su formalización, pero más manejable combinatoriamente (Frangouli et al., 1995, citado en \cite{schaerf1999}). Fue precisamente la necesidad de estandarizar las reglas y la formalización matemática de este último problema lo que impulsó a la comunidad científica a establecer marcos de evaluación universales. 
+
+La formulación del problema de asignación de horarios basada en currículos (CB-CTT) se consolidó como un estándar de investigación formal gracias a las iniciativas impulsadas por la International Metaheuristic Network. El hito histórico fundamental se remonta a la primera Competencia Internacional de Programación de Horarios (ITC-2002), certamen que logró convocar 24 enfoques algorítmicos factibles a nivel global. Como señalan Di Gaspero y Schaerf \cite{digaspero2007}, la estructura de datos y las métricas de evaluación establecidas en dicha instancia sirvieron como marco de referencia ineludible para numerosos desarrollos posteriores, tales como los trabajos de Kostuch (2005) y Chiarandini et al. (2006) \cite{digaspero2007}. A partir del éxito de esta iniciativa, la segunda edición de la competencia (ITC-2007) formalizó la pista específica de CB-CTT, estandarizando las restricciones duras y blandas que guían la evaluación de las técnicas de resolución actuales.
+
+En contraste con las aproximaciones heurísticas, el trabajo de Lach y L\"{u}bbecke \cite{lach2012} aborda el CB-CTT desde la Programación Lineal Entera, utilizando instancias de referencia de la Universidad de Udine (ITC-2007). Para garantizar el cumplimiento de las restricciones duras, los autores proponen una descomposición matemática en dos etapas. En la primera fase, el modelo descarta las variables binarias tridimensionales (curso, sala y periodo) y representa las combinaciones elegibles mediante grafos bipartitos no dirigidos; esto permite programar las asignaturas en los bloques temporales con la certeza de que podrán ser ubicadas físicamente más adelante. Una vez resuelto este programa, la segunda etapa ejecuta un emparejamiento bipartito perfecto de peso mínimo en tiempo polinómico para asignar las salas definitivas. Sobre este mecanismo, los autores destacan que: ``Clearly, this decomposition approach is exact, that is, in principle it deterministically finds optimal solutions, provided one allows enough running time'' \cite{lach2012}. Sin embargo, la posterior integración de las restricciones blandas al modelo demostró que diversas soluciones óptimas de la primera etapa resultan fuertemente penalizadas o descartadas. Pese a esta complejidad, este método logró un aporte invaluable para la disciplina: la obtención de cotas inferiores (\textit{lower bounds}) precisas, proporcionando un punto de referencia matemático estricto para medir la eficacia de las metaheurísticas desarrolladas posteriormente.
+
+Dentro de los enfoques metaheurísticos aplicados al CB-CTT, Lü y Hao \cite{lu2010} desarrollaron la Búsqueda Tabú Adaptativa (ATS), un algoritmo híbrido que alterna la intensificación y diversificación para explorar el espacio de soluciones factibles. Para el modelado de movimientos, los autores implementaron el uso de cadenas de Kempe dobles, una estructura de multivecindad que demostró mayor eficacia que las alternativas clásicas. La principal innovación del método radica en ajustar dinámicamente la profundidad de búsqueda y la perturbación guiándose por las penalizaciones de las restricciones blandas. Los resultados experimentales evidenciaron que esta estrategia adaptativa logra evadir óptimos locales con éxito, superando significativamente el rendimiento de implementaciones aisladas de Búsqueda Tabú (TS) y Búsqueda Local Iterada (ILS) \cite{lu2010}.
+
+En el ámbito de las metaheurísticas recientes para el CB-CTT, Ceschia \textit{et al.} \cite{ceschia2012} proponen un algoritmo de Recocido Simulado (\textit{Simulated Annealing}) enfocado en minimizar las penalizaciones de restricciones blandas, tales como la presencia de ``ventanas'' en los horarios estudiantiles. Para optimizar la exploración del espacio de soluciones, el estudio perfecciona la estructura de vecindad clásica \textit{Lecture Move}. La innovación principal radica en sustituir la selección aleatoria uniforme por un sesgo de muestreo consciente, otorgando una probabilidad de reasignación significativamente mayor a aquellas asignaturas que concentran más puntos de castigo. Empíricamente, esta exploración guiada demuestra un bajo costo computacional y supera de forma consistente a los enfoques de búsqueda local previos bajo los tiempos límite de la competencia ITC-2007. Aunque su rendimiento es equiparable a las técnicas más avanzadas actuales, los autores precisan que en las instancias de mayor dificultad combinatoria aún no logran igualar los mejores resultados históricos \cite{ceschia2012}.
+
+Respecto a la tendencia actual en la resolución de estos problemas, como afirman los autores Ceschia, Di Gaspero y Schaerf \cite{ceschia2023} en su exhaustiva revisión del estado del arte, las investigaciones recientes se están enfocando en crear modelos mucho más completos y con menos simplificaciones, buscando representar de forma fiel las complicaciones del mundo real. Estos autores señalan que, frente a estos nuevos desafíos, tanto las técnicas exactas como las heurísticas tienen un rol importante. Por un lado, los métodos basados en búsqueda local (como el Recocido Simulado y la Búsqueda Tabú) siguen siendo los más efectivos para lograr los mejores resultados en la variante de currículos (CB-CTT) cuando existen límites de tiempo estrictos para encontrar una solución. Por otro lado, al enfrentarse a escenarios más difíciles, como los horarios de colegios (XHSTT) o cuando se permite a los algoritmos correr sin límite de tiempo, los enfoques matemáticos exactos, como la Programación Entera, han demostrado funcionar bastante bien. Finalmente, Ceschia \textit{et al.} \cite{ceschia2023} concluyen que el siguiente gran paso es crear nuevos conjuntos de datos de prueba más exigentes y desarrollar plataformas computacionales comunes, esto con el fin de evitar que los algoritmos se ajusten solo a un problema específico y asegurar que cualquier avance futuro pueda ser validado, comparado y reproducido de forma justa por toda la comunidad.
+
+\section{Modelo Matem\'atico}
+
+Para formalizar el Problema de Asignación de Horarios Basado en Currículos (CB-CTT), se presenta a continuación un modelo de Programación Lineal Entera original. Esta representación matemática captura de forma fiel las reglas y la métrica de penalización de la formulación estándar \textit{UD2}, adoptada como referencia en la competencia ITC-2007 \cite{digaspero2007, decesco2008, lach2012}. A diferencia de la versión preliminar, todas las restricciones blandas se linealizan explícitamente mediante variables auxiliares, de modo que cada término de la función objetivo quede conectado algebraicamente con las variables de decisión del modelo.
+
+\subsection{Conjuntos y Parámetros del Modelo}
+Para representar las entidades operativas de la institución, se definen los siguientes conjuntos y parámetros fundamentales:
+
+\begin{itemize}
+    \item $C$: Conjunto de todos los cursos que deben ser programados, indexado por $c$.
+    \item $R$: Conjunto de salas físicas disponibles, indexado por $r$.
+    \item $D$: Conjunto de días lectivos de la semana, indexado por $d$.
+    \item $P$: Conjunto total de periodos o bloques temporales de la semana, indexado por $p$. Cada periodo pertenece a exactamente un día, lo que induce la partición $P = \bigcup_{d \in D} P_d$.
+    \item $P_d \subseteq P$: Subconjunto de periodos que pertenecen al día $d$.
+    \item $Q$: Conjunto de currículos (agrupaciones de cursos que comparten estudiantes), indexado por $q$.
+    \item $C_q \subseteq C$: Subconjunto de cursos que pertenecen al currículo $q$.
+    \item $L_c$: Parámetro entero que indica el número total de clases (sesiones) que el curso $c$ debe impartir obligatoriamente.
+    \item $S_c$: Parámetro que indica la cantidad de estudiantes inscritos en el curso $c$.
+    \item $Cap_r$: Parámetro que indica la capacidad máxima de estudiantes de la sala $r$.
+    \item $M_c$: Parámetro entero que representa el número mínimo de días en los que las clases del curso $c$ deben ser distribuidas.
+    \item $U_c \subseteq P$: Subconjunto de periodos en los cuales el curso $c$ tiene expresamente prohibido agendarse por indisponibilidad del profesor.
+    \item $E$: Conjunto de pares de cursos $(c, c')$ que entran en conflicto. Dos cursos pertenecen a este conjunto si son dictados por el mismo profesor o si comparten al menos un currículo.
+    \item $Adj_q$: Conjunto de pares de periodos $(p, p')$ consecutivos dentro de un mismo día (adyacentes) que son relevantes para evaluar la compacidad del currículo $q$.
+    \item $w_{cap}, w_{dias}, w_{comp}, w_{est}$: Pesos oficiales de la formulación UD2, con valores $1$, $5$, $2$ y $1$ respectivamente \cite{digaspero2007}.
+\end{itemize}
+
+\subsection{Variables de Decisión}
+La asignación espacial y temporal de las clases se modela mediante una variable de decisión principal, acompañada de un conjunto de variables auxiliares que permiten expresar algebraicamente las restricciones blandas de la formulación UD2.
+
+La variable principal es binaria y representa la asignación concreta de cada clase a un periodo y una sala:
+\begin{equation}
+x_{c,p,r} = 
+\begin{cases} 
+1 & \text{si una clase del curso } c \text{ se programa en el periodo } p \text{ en la sala } r \\
+0 & \text{en caso contrario}
+\end{cases}
+\qquad \forall c \in C, \forall p \in P, \forall r \in R
+\end{equation}
+
+A partir de ella se definen las siguientes variables auxiliares:
+\begin{itemize}
+    \item $y_{c,p} \in \{0,1\}$: vale $1$ si el curso $c$ tiene una clase programada en el periodo $p$ (en cualquier sala), y $0$ en caso contrario. Vincula la dimensión temporal con la espacial.
+    \item $z_{c,d} \in \{0,1\}$: vale $1$ si el curso $c$ dicta al menos una clase durante el día $d$, y $0$ en caso contrario. Permite contar los días efectivos de trabajo de un curso.
+    \item $u_{c,r} \in \{0,1\}$: vale $1$ si el curso $c$ utiliza la sala $r$ al menos una vez durante la semana, y $0$ en caso contrario. Permite contar cuántas salas distintas emplea un curso.
+    \item $v_c \in \mathbb{Z}_{\geq 0}$: número de días por debajo del mínimo $M_c$ en que el curso $c$ reparte sus clases (déficit de días de trabajo).
+    \item $g_{q,p} \in \{0,1\}$: vale $1$ si el currículo $q$ tiene una clase aislada en el periodo $p$ (una clase sin ninguna otra clase del mismo currículo en un periodo adyacente del mismo día), y $0$ en caso contrario.
+    \item $e_{c,p,r} \in \mathbb{Z}_{\geq 0}$: número de estudiantes del curso $c$ que exceden la capacidad de la sala $r$ cuando la clase se dicta en el periodo $p$ (exceso de capacidad).
+\end{itemize}
+
+\subsection{Restricciones Duras}
+Las restricciones duras imponen las condiciones obligatorias que garantizan la factibilidad operativa del horario. Su incumplimiento invalida la solución, por lo que se formulan como igualdades o desigualdades lineales de obligado cumplimiento:
+
+\begin{enumerate}
+    \item \textbf{Completitud de clases (\textit{Lectures}):} Todas las sesiones requeridas por un curso deben ser asignadas exactamente, a algún periodo y a alguna sala dentro de la semana.
+    \begin{equation}
+    \sum_{p \in P} \sum_{r \in R} x_{c,p,r} = L_c \quad \forall c \in C
+    \end{equation}
+
+    \item \textbf{Ocupación exclusiva de salas (\textit{RoomOccupancy}):} Una sala física no puede albergar más de una clase en un mismo bloque temporal.
+    \begin{equation}
+    \sum_{c \in C} x_{c,p,r} \leq 1 \quad \forall p \in P, \forall r \in R
+    \end{equation}
+
+    \item \textbf{Unicidad de sala por clase:} Un curso no puede dictarse simultáneamente en dos salas distintas durante un mismo periodo. Es decir, a lo más una de sus clases ocurre por periodo. Esta restricción corrige la ambigüedad de la versión preliminar, donde la sola completitud permitía duplicar un curso en salas paralelas.
+    \begin{equation}
+    \sum_{r \in R} x_{c,p,r} \leq 1 \quad \forall c \in C, \forall p \in P
+    \end{equation}
+
+    \item \textbf{Resolución de Conflictos (\textit{Conflicts}):} Dos cursos que comparten profesor o pertenecen a un mismo currículo (conjunto de conflictos $E$) no pueden ser programados en el mismo periodo $p$, independientemente de la sala asignada.
+    \begin{equation}
+    \sum_{r \in R} x_{c,p,r} + \sum_{r \in R} x_{c',p,r} \leq 1 \quad \forall p \in P, \forall (c, c') \in E
+    \end{equation}
+
+    \item \textbf{Indisponibilidad del profesor (\textit{Availability}):} Si un curso tiene marcado un periodo como no disponible ($p \in U_c$), la variable de decisión debe ser forzosamente cero para cualquier sala en ese horario.
+    \begin{equation}
+    x_{c,p,r} = 0 \quad \forall c \in C, \forall p \in U_c, \forall r \in R
+    \end{equation}
+\end{enumerate}
+
+\subsection{Restricciones de Enlace de Variables Auxiliares}
+Para que la función objetivo pueda evaluar las penalizaciones blandas, las variables auxiliares deben quedar correctamente ligadas a la variable principal $x_{c,p,r}$ mediante las siguientes restricciones de consistencia:
+
+\begin{enumerate}
+    \item \textbf{Ocupación temporal de un curso:} la variable $y_{c,p}$ registra si el curso $c$ se dicta en el periodo $p$. Dada la restricción de unicidad de sala, se cumple:
+    \begin{equation}
+    y_{c,p} = \sum_{r \in R} x_{c,p,r} \quad \forall c \in C, \forall p \in P
+    \end{equation}
+
+    \item \textbf{Actividad diaria de un curso:} la variable $z_{c,d}$ se activa si el curso dicta alguna clase durante el día $d$. Se acota por arriba y por abajo para forzar su coherencia:
+    \begin{equation}
+    z_{c,d} \leq \sum_{p \in P_d} y_{c,p} \quad \text{y} \quad y_{c,p} \leq z_{c,d} \quad \forall c \in C, \forall d \in D, \forall p \in P_d
+    \end{equation}
+
+    \item \textbf{Uso de salas por curso:} la variable $u_{c,r}$ indica si el curso $c$ emplea la sala $r$ en algún momento de la semana:
+    \begin{equation}
+    x_{c,p,r} \leq u_{c,r} \quad \forall c \in C, \forall p \in P, \forall r \in R
+    \end{equation}
+
+    \item \textbf{Exceso de capacidad:} la variable $e_{c,p,r}$ cuantifica el número de estudiantes que superan la capacidad de la sala cuando la clase se agenda allí:
+    \begin{equation}
+    e_{c,p,r} \geq (S_c - Cap_r)\, x_{c,p,r} \quad \forall c \in C, \forall p \in P, \forall r \in R
+    \end{equation}
+\end{enumerate}
+
+\subsection{Restricciones Blandas}
+Las restricciones blandas de UD2 no invalidan la solución, pero cada violación aporta una penalización a la función objetivo. Se modelan de la siguiente forma:
+
+\begin{enumerate}
+    \item \textbf{Días mínimos de trabajo (\textit{MinimumWorkingDays}):} se penaliza cada día por debajo del mínimo $M_c$ en que el curso reparte sus clases. La variable de déficit $v_c$ captura esa diferencia:
+    \begin{equation}
+    v_c \geq M_c - \sum_{d \in D} z_{c,d} \quad \text{y} \quad v_c \geq 0 \quad \forall c \in C
+    \end{equation}
+
+    \item \textbf{Compacidad del currículo (\textit{IsolatedLectures}):} una clase del currículo $q$ en el periodo $p$ se considera aislada si no existe otra clase del mismo currículo en un periodo adyacente $(p, p') \in Adj_q$ del mismo día. La variable $g_{q,p}$ marca dicho aislamiento:
+    \begin{equation}
+    g_{q,p} \geq \sum_{c \in C_q} y_{c,p} \;-\; \sum_{(p,p') \in Adj_q} \; \sum_{c \in C_q} y_{c,p'} \quad \text{y} \quad g_{q,p} \geq 0 \quad \forall q \in Q, \forall p \in P
+    \end{equation}
+\end{enumerate}
+
+Las penalizaciones por capacidad y por estabilidad de salas se calculan directamente a partir de las variables de enlace $e_{c,p,r}$ y $u_{c,r}$ definidas anteriormente, por lo que no requieren restricciones adicionales.
+
+\subsection{Función Objetivo}
+El propósito del modelo es encontrar una asignación que, cumpliendo estrictamente todas las restricciones duras, \textbf{minimice} el total ponderado de penalizaciones por restricciones blandas, maximizando así la calidad del horario. En palabras, se busca minimizar la suma del exceso de capacidad de las salas, del déficit de días mínimos de trabajo, de las clases aisladas en los currículos y del uso de salas adicionales por curso.
+
+Cada penalización se define algebraicamente en función de las variables del modelo:
+\begin{align}
+    Pen_{cap}  &= \sum_{c \in C} \sum_{p \in P} \sum_{r \in R} e_{c,p,r} && \text{(estudiantes que exceden la capacidad)} \\
+    Pen_{dias} &= \sum_{c \in C} v_c && \text{(días por debajo de } M_c \text{)} \\
+    Pen_{comp} &= \sum_{q \in Q} \sum_{p \in P} g_{q,p} && \text{(clases aisladas por currículo)} \\
+    Pen_{est}  &= \sum_{c \in C} \left( \sum_{r \in R} u_{c,r} - 1 \right) && \text{(salas usadas por el curso más allá de la primera)}
+\end{align}
+
+La función objetivo integra estas penalizaciones con los pesos oficiales de la formulación UD2 ($w_{cap}=1$, $w_{dias}=5$, $w_{comp}=2$, $w_{est}=1$) \cite{digaspero2007}:
+
+\begin{equation}
+\text{Minimizar } Z = w_{cap}\, Pen_{cap} + w_{dias}\, Pen_{dias} + w_{comp}\, Pen_{comp} + w_{est}\, Pen_{est}
+\end{equation}
+
+De este modo, cada término de la función objetivo queda conectado de forma explícita con la variable de decisión principal $x_{c,p,r}$ a través de sus variables auxiliares, garantizando la coherencia entre la descripción verbal y la formulación algebraica del modelo.
+
+\subsection{Dominio de las Variables}
+Finalmente, se declara la naturaleza de todas las variables del modelo:
+\begin{equation}
+x_{c,p,r},\, y_{c,p},\, z_{c,d},\, u_{c,r},\, g_{q,p} \in \{0,1\}
+\qquad
+v_c,\, e_{c,p,r} \in \mathbb{Z}_{\geq 0}
+\end{equation}
+\section{Conclusiones}
+
+El análisis del estado del arte demuestra que las técnicas estudiadas resuelven, en el fondo, el mismo problema base: la formulación UD2 de la competencia ITC-2007. En cuanto a sus similitudes, la gran mayoría aborda el problema dividiéndolo en dos etapas lógicas. Primero, los algoritmos se aseguran de cumplir todas las restricciones duras para que el horario sea válido (que no choquen las clases) y, una vez logrado esto, intentan mejorar la calidad del horario reduciendo las penalizaciones de las restricciones blandas.
+
+Sin embargo, existen grandes diferencias en cómo logran este objetivo. Por un lado, los métodos exactos (como la Programación Lineal Entera) buscan la solución matemáticamente perfecta, pero toman demasiado tiempo de procesamiento, lo que los hace poco prácticos para calcular el horario de una universidad completa. Por otro lado, las metaheurísticas (como el Recocido Simulado o la Búsqueda Tabú) prefieren no buscar la perfección matemática absoluta, sino que exploran combinaciones muy rápido para entregar horarios de excelente calidad en pocos minutos, siendo mucho más útiles en la realidad.
+
+La principal limitación que tienen estas metaheurísticas es que dependen demasiado de la calibración de sus parámetros. Es decir, si el programador no ajusta bien los valores a mano, el algoritmo puede dar muy buenos resultados para una universidad, pero resultados deficientes para otra, perdiendo flexibilidad frente a escenarios nuevos.
+
+Como trabajo futuro, resulta clave encontrar formas de guiar a estos algoritmos para que no dependan tanto de su configuración inicial y trabajen de forma más eficiente. Como idea propia para aportar a resolver este problema, se propone incorporar una etapa de "clasificación previa" en el modelo. Esto significa que, antes de empezar a agendar, el programa identifique los "cuellos de botella" de la institución; por ejemplo, detectando aquellos cursos que tienen profesores con muy poca disponibilidad horaria o que son tan masivos que solo caben en un par de salas. Si se obliga al algoritmo a acomodar primero estas piezas críticas y luego construir el resto del horario en torno a ellas, se evitaría que el sistema se quede atascado al final del proceso buscando espacio para las clases más difíciles, logrando así soluciones de mejor calidad en mucho menos tiempo.
+
+\section{Uso de LLMs e IA}
+Indique acá, para las herramientas de LLMs/IA usadas en su proyecto. Para cada herramienta/uso, indicar:
+
+\begin{enumerate}
+    \item \textbf{Herramienta utilizada:} Gemini (Google), plan PRO de estudiantes.
+    
+    \item \textbf{Propósito de uso:} Asistencia en la corrección de estilo, ortografía (tildes) y gramática de los borradores preliminares. Se utilizó la herramienta estrictamente como apoyo para la síntesis de ideas propias obtenidas tras la lectura exhaustiva de los \textit{papers}, así como para dar formato a la bibliografía. No se utilizó para la generación autónoma de contenido ni de código.
+    
+    \item \textbf{Prompts relevantes:} 
+    \begin{itemize}
+        \item \textit{``Estaba traduciendo el paper de Andrea Schaerf y me encontré con esta idea central [...]. Todo este enfoque lo quiero en mi primer párrafo del estado del arte, ¿podrías ayudarme a sintetizarlo con una redacción más académica manteniendo exclusivamente mi idea?''}
+        \item \textit{``Tengo estos apuntes sobre las características y restricciones del problema CB-CTT luego de leer los documentos del ayudante. Ayúdame a ordenar estas ideas para que la definición del problema tenga un flujo más natural, sin agregar información externa que yo no te haya dado.''}
+        \item \textit{``Necesito estructurar mi bibliografía en formato APA y generar el código BibTeX para los documentos que he trabajado.''}
+    \end{itemize}
+    
+    \item \textbf{Nivel de edición:} Los resultados entregados por la inteligencia artificial no fueron copiados y pegados directamente. El flujo de trabajo consistió en enviar un texto base (escrito y analizado por el autor), recibir sugerencias de redacción por parte de la IA, y luego reescribir y adaptar esas sugerencias al documento final. La IA actuó únicamente como un corrector de estilo, garantizando que el texto mantuviera la coherencia y el formato profesional exigido.
+    
+    \item \textbf{Validación:} Uso de juicio propio fundamentado en la investigación previa y lectura profunda de los artículos científicos de referencia (como Ceschia \textit{et al.}, Di Gaspero y Schaerf, entre otros). Se contrastó de manera estricta cada párrafo sugerido por la IA con los documentos oficiales, asegurando que no se incluyeran datos ficticios ni conclusiones ajenas al análisis propio.
+\end{enumerate}
+
+
+
+\bibliographystyle{plain}
+\bibliography{Referencias}
+
+\end{document} 
